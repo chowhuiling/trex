@@ -6,6 +6,7 @@ var htmlWebpackPlugin = require('html-webpack-plugin');
 const TARGET = process.env.npm_lifecycle_event;
 const PATHS = {
   app: path.resolve(__dirname, 'app'),
+  lib: path.resolve(__dirname, 'lib'),
   build: path.resolve(__dirname, 'build')
 };
 
@@ -22,6 +23,11 @@ const common = {
   entry: PATHS.app,
   //resolve.extensions allow imports without an extension
   resolve: {
+    moduleDirectories: [PATHS.app,PATHS.lib],
+    root: path.resolve(__dirname),
+    alias: {
+      'query-builder': '/lib/jQuery-QueryBuilder-master/dist/js/query-builder.standalone.js'
+    },
     extensions: ['', '.js', '.jsx']
   },
   output: {
@@ -49,15 +55,20 @@ const common = {
       //loaders are invoked from right to left.
       //css loader will resolve @import and url statements in css files
       //then style-loader deals with require statements in our javascript
-      loaders: ['style', 'css'],
+      loaders: ['style-loader', 'css-loader'],
       // Include accepts either a path or an array of paths.
       // Always set this or webpack will traverse all files in base directory.
       // can use 'exclude' also.
-      include: PATHS.app
+      include: [PATHS.app, path.resolve(__dirname,'node_modules','bootstrap','dist')]
     },
     {
       test: /\.jsx?$/,
       loaders: ['babel'],
+      include: PATHS.app
+    },
+    {
+      test: /.json$/,
+      loaders:['json-loader'],
       include: PATHS.app
     }
     ]
@@ -105,7 +116,7 @@ if (TARGET === 'build') {
           warnings: false
         }
       })
-    ]     
+    ]
   });
 }
 
